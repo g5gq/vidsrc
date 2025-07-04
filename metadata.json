@@ -1,0 +1,19 @@
+{
+  "sourceName": "Vidsrc",
+  "iconUrl": "https://github.com/g5gq/Fushar-Module/blob/main/fushar.png?raw=true",
+  "author": {
+    "name": "Nizar",
+    "icon": "https://avatars.githubusercontent.com/u/219203192?v=4",
+    "url": "https://github.com/g5gq"
+  },
+  "version": "1.0.0",
+  "language": "English",
+  "streamType": "HLS",
+  "quality": "1080p",
+  "baseUrl": "https://vidsrc.to/",
+  "searchBaseUrl": "https://api.themoviedb.org/3/search/multi?api_key=YOUR_API_KEY&query=%s",
+  "scriptUrl": "https://raw.githubusercontent.com/g5gq/Fushar-Module/refs/heads/main/main.js",
+  "type": "movies/shows",
+  "asyncJS": true,
+  "softsub": false
+}
