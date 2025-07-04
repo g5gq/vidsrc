@@ -1,9 +1,9 @@
-// Vidsrc.js - Full Main.js for Sora Movie Module Integration
+// Vidsrc.js - Clean Version for Sora Movie Module Integration
 
-const apiKey = '68e094699525b18a70bab2f86b1fa706'; // Your TMDB API key here
-const baseUrl = 'https://vidsrc.vip/'; // Vidsrc base URL for streaming
+const apiKey = '68e094699525b18a70bab2f86b1fa706'; // Your TMDB API key
+const baseUrl = 'https://vidsrc.vip'; // Vidsrc base URL
 
-// Search Function: Fetches movie/search results from TMDB API
+// Search movies/shows using TMDB
 function searchResults(query) {
     const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`;
 
@@ -11,15 +11,15 @@ function searchResults(query) {
         .then(response => response.json())
         .then(data => {
             if (data.results && data.results.length > 0) {
-                return data.results.map(item => {
-                    return {
-                        id: item.id,
-                        title: item.title || item.name,
-                        year: item.release_date ? item.release_date.split('-')[0] : 'N/A',
-                        type: item.media_type,
-                        image: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/150',
-                    };
-                });
+                return data.results.map(item => ({
+                    id: item.id,
+                    title: item.title || item.name,
+                    year: item.release_date ? item.release_date.split('-')[0] : 'N/A',
+                    type: item.media_type,
+                    image: item.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                        : 'https://via.placeholder.com/150',
+                }));
             } else {
                 throw new Error('No results found');
             }
@@ -30,7 +30,29 @@ function searchResults(query) {
         });
 }
 
-// Extract Stream URL Function: Fetches streaming URL from Vidsrc
+// Extract details from TMDB
+function extractDetails(id) {
+    const detailsUrl = `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&language=en-US`;
+
+    return fetch(detailsUrl)
+        .then(response => response.json())
+        .then(data => ({
+            title: data.title || 'N/A',
+            description: data.overview || 'No description available.',
+            releaseDate: data.release_date || 'N/A',
+            rating: data.vote_average || 'N/A',
+            genres: data.genres ? data.genres.map(g => g.name).join(', ') : 'N/A',
+            image: data.poster_path
+                ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
+                : 'https://via.placeholder.com/150',
+        }))
+        .catch(error => {
+            console.error('Error fetching movie details:', error);
+            return null;
+        });
+}
+
+// Extract streaming URL from Vidsrc
 function extractStreamUrl(id) {
     const streamUrl = `${baseUrl}/api/v1/watch?imdb_id=${id}`;
 
@@ -39,7 +61,7 @@ function extractStreamUrl(id) {
         .then(data => {
             if (data && data.stream_url) {
                 return {
-                    url: data.stream_url, // Streaming URL from Vidsrc
+                    url: data.stream_url,
                     quality: data.quality || 'HD',
                     type: 'video/mp4',
                 };
@@ -53,55 +75,30 @@ function extractStreamUrl(id) {
         });
 }
 
-// Extract Details Function: Fetches detailed info from TMDB
-function extractDetails(id) {
-    const detailsUrl = `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&language=en-US`;
-
-    return fetch(detailsUrl)
-        .then(response => response.json())
-        .then(data => {
-            return {
-                title: data.title || 'N/A',
-                description: data.overview || 'No description available.',
-                releaseDate: data.release_date || 'N/A',
-                rating: data.vote_average || 'N/A',
-                genres: data.genres ? data.genres.map(g => g.name).join(', ') : 'N/A',
-                image: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : 'https://via.placeholder.com/150',
-            };
-        })
-        .catch(error => {
-            console.error('Error fetching movie details:', error);
-            return null;
-        });
-}
-
-// Main search function: Takes the search query, fetches results, extracts details, and streams
+// Main function: search + extract details + stream
 function search(query) {
     searchResults(query).then(results => {
         if (results.length > 0) {
-            // Process the first search result (You can modify this to handle multiple results)
             const movie = results[0];
             console.log('Found movie:', movie);
 
-            // Extract details
             extractDetails(movie.id).then(details => {
                 console.log('Movie Details:', details);
 
-                // Extract stream URL
                 extractStreamUrl(movie.id).then(stream => {
                     if (stream) {
                         console.log('Stream URL:', stream.url);
-                        // You can now use the stream URL to play the video
+                        // You can now use the stream URL in your video player
                     } else {
-                        console.log('Stream URL not found');
+                        console.log('Stream not available');
                     }
                 });
             });
         } else {
-            console.log('No search results found');
+            console.log('No results found.');
         }
     });
 }
 
-// Example usage: Calling the search function with a query
-search('The Godfather'); // Replace 'The Godfather' with any movie title
+// Example usage
+search('The Godfather');
