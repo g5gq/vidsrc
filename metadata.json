@@ -12,7 +12,7 @@
   "quality": "1080p",
   "baseUrl": "https://vidsrc.to/",
   "searchBaseUrl": "https://api.themoviedb.org/3/search/movie?api_key=68e094699525b18a70bab2f86b1fa706&query=%s",
-  "scriptUrl": "https://raw.githack.com/g5gq/Fushar-Module/main/main.js",
+  "scriptUrl": "https://raw.githubusercontent.com/g5gq/vidsrc/refs/heads/main/main.js",
   "type": "movies",
   "asyncJS": true,
   "softsub": false
